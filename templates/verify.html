@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Message — PaySecure{% endblock %}
+{% block main_class %}page-content{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2> Message Verification Tool</h2>
+    <p>Paste an SMS, email, or payment link below to check for phishing indicators.</p>
+</div>
+
+<div class="card">
+    <form method="POST" action="{{ url_for('verify') }}" class="verify-form" id="analysisForm">
+        <div class="form-group">
+            <label>Step 1: Preliminary Security Checklist</label>
+            <div class="card" style="background: var(--bg-input); margin-bottom: 15px; padding: 15px;">
+                <ul class="warning-list" style="margin: 0;">
+                    <li><input type="checkbox" class="step-check"> I have checked the sender's official number/email.</li>
+                    <li><input type="checkbox" class="step-check"> I have looked for spelling or grammar errors.</li>
+                    <li><input type="checkbox" class="step-check"> I have avoided clicking any links in the message.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="message_input">Step 2: Paste Message for Technical Analysis</label>
+            <textarea 
+                name="message_input" 
+                id="message_input" 
+                placeholder="Paste the message content here..."
+                required
+            >{{ result.input if result else '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-verify" id="submitBtn" disabled title="Complete the checklist first">
+            Analyze Now
+        </button>
+    </form>
+
+    {% if result %}
+    <div class="result-box {{ result.verdict }}">
+        <div class="result-header">
+            <span class="result-icon">
+                {% if result.verdict == 'safe' %}✅{% elif result.verdict == 'suspicious' %}⚠️{% else %}🚨{% endif %}
+            </span>
+            <div>
+                <h3 style="text-transform: capitalize;">Verdict: {{ result.verdict }}</h3>
+                <p style="font-size: 0.85rem; opacity: 0.8;">Security Score: {{ result.score }} / 10 (Lower is safer)</p>
+            </div>
+        </div>
+
+        <p style="font-size: 0.95rem; margin-bottom: 15px;">
+            <strong>Analysis Results:</strong>
+        </p>
+
+        {% if result.flags %}
+            <ul class="result-flags">
+                {% for flag in result.flags %}
+                    <li>{{ flag }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-flags">No suspicious patterns detected. This message appears to be safe.</p>
+        {% endif %}
+
+        <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <strong>Disclaimer:</strong> This tool uses rule-based detection. Always exercise personal judgment before sharing PINs or clicking links.
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

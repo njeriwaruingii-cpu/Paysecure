@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Login — PaySecure{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+
+    <div class="auth-logo">
+        <span class="shield-icon">🛡</span>
+        <h1>PaySecure</h1>
+        <p>Phishing Detection & Payment Verification</p>
+    </div>
+
+    <!-- Flash messages inside card for auth pages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}" style="margin-bottom:16px;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                autocomplete="username"
+                required
+            />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+            />
+        </div>
+
+        <button type="submit" class="btn-primary">Login</button>
+    </form>
+
+    <div class="auth-footer">
+        Don't have an account? <a href="{{ url_for('register') }}">Create one</a>
+    </div>
+
+</div>
+{% endblock %}

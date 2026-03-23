@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel — PaySecure{% endblock %}
+{% block main_class %}page-content{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2>🛠 Admin System Overview</h2>
+    <p>Monitor user activity, system usage, and security threats.</p>
+</div>
+
+<div class="admin-stats">
+    <div class="stat-card">
+        <span class="stat-label">Registered Students</span>
+        <span class="stat-value">{{ total_users }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Total Verifications</span>
+        <span class="stat-value">{{ total_verifications }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Dangerous Threats</span>
+        <span class="stat-value" style="color: var(--red);">{{ dangerous_count }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">System Status</span>
+        <span class="stat-value" style="color: var(--green); font-size: 1.2rem;">ONLINE</span>
+    </div>
+</div>
+
+<div class="page-header" style="margin-top: 12px;">
+    <h2>📜 Recent Activity Logs</h2>
+    <p>The last 20 actions performed across the system.</p>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Detail</th>
+                <th>IP Address</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td><strong>{{ log['username'] }}</strong></td>
+                <td>
+                    <span class="badge {% if log['action'] == 'login' %}badge-safe{% elif 'danger' in (log['detail'] or '') %}badge-dangerous{% else %}badge-suspicious{% endif %}">
+                        {{ log['action'] | upper }}
+                    </span>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.8rem;">
+                    {{ log['detail'] if log['detail'] else '-' }}
+                </td>
+                <td style="font-family: monospace; font-size: 0.8rem;">{{ log['ip_address'] }}</td>
+                <td style="color: var(--text-muted); font-size: 0.8rem;">{{ log['logged_at'] }}</td>
+            </tr>
+            {% endfor %}
+            {% if not recent_logs %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    No activity logs found.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

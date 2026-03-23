@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — PaySecure{% endblock %}
+{% block main_class %}page-content{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2> Welcome, {{ session.get('username') }}</h2>
+    <p>Here's your PaySecure overview. Stay safe online.</p>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-label">Total Checks Done</span>
+        <span class="stat-value">{{ recent | length }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Dangerous Detected</span>
+        <span class="stat-value" style="color: var(--red);">
+            {{ recent | selectattr('verdict', 'equalto', 'dangerous') | list | length }}
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Safe Messages</span>
+        <span class="stat-value" style="color: var(--green);">
+            {{ recent | selectattr('verdict', 'equalto', 'safe') | list | length }}
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Logged In As</span>
+        <span class="stat-value" style="font-size:1.1rem; padding-top:6px;">
+            {{ session.get('role') | capitalize }}
+        </span>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="page-header">
+    <h2>Quick Actions</h2>
+</div>
+
+<div class="quick-actions">
+    <a href="{{ url_for('verify') }}" class="action-card">
+        <span class="action-icon">🔍</span>
+        <h3>Verify a Message</h3>
+        <p>Paste a payment message or link and instantly check if it's safe or a phishing attempt.</p>
+    </a>
+    <a href="{{ url_for('learn') }}" class="action-card">
+        <span class="action-icon">📚</span>
+        <h3>Learn About Phishing</h3>
+        <p>Understand how phishing works, warning signs to watch for, and how to protect yourself.</p>
+    </a>
+    {% if session.get('role') == 'admin' %}
+    <a href="{{ url_for('admin') }}" class="action-card">
+        <span class="action-icon">🛠</span>
+        <h3>Admin Panel</h3>
+        <p>Monitor system usage, user activity, and security logs.</p>
+    </a>
+    {% endif %}
+</div>
+
+<!-- RECENT VERIFICATION HISTORY -->
+<div class="page-header" style="margin-top: 12px;">
+    <h2>Recent Verifications</h2>
+    <p>Your last 5 message checks.</p>
+</div>
+
+<div class="card">
+    {% if recent %}
+    <table class="recent-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Verdict</th>
+                <th>Checked At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in recent %}
+            <tr>
+                <td style="color: var(--text-muted);">{{ loop.index }}</td>
+                <td>
+                    <span class="badge badge-{{ row['verdict'] }}">
+                        {% if row['verdict'] == 'safe' %}✅{% elif row['verdict'] == 'suspicious' %}⚠{% else %}🚨{% endif %}
+                        {{ row['verdict'] | capitalize }}
+                    </span>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.85rem;">{{ row['checked_at'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--text-muted); font-size: 0.9rem; padding: 8px 0;">
+        No verifications yet. <a href="{{ url_for('verify') }}">Run your first check →</a>
+    </p>
+    {% endif %}
+</div>
+
+{% endblock %}

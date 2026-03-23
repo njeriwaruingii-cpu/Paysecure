@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PaySecure{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- NAVBAR (only shown when logged in) -->
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="shield">🛡</span> PaySecure
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">Dashboard</a></li>
+            <li><a href="{{ url_for('learn') }}"     class="{{ 'active' if request.endpoint == 'learn' }}">Learn</a></li>
+            <li><a href="{{ url_for('verify') }}"    class="{{ 'active' if request.endpoint == 'verify' }}">Verify</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="{{ url_for('admin') }}"     class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a></li>
+            {% endif %}
+        </ul>
+        <div class="nav-user">
+            <span class="username-badge">{{ session.get('username') }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-wrapper">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- PAGE CONTENT -->
+    <main class="{% block main_class %}{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='js/verify.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Learn — PaySecure{% endblock %}
+{% block main_class %}page-content{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2>📚 Phishing & Payment Security</h2>
+    <p>Learn how to identify scams and protect yourself from online fraud.</p>
+</div>
+
+<!-- SECTION 1: WHAT IS PHISHING -->
+<div class="learn-grid">
+    <div class="learn-card">
+        <span class="card-icon">🎣</span>
+        <h3>What is Phishing?</h3>
+        <p>
+            Phishing is a cyberattack where criminals impersonate trusted organisations —
+            like banks, M-Pesa, or PayPal — to trick you into revealing passwords, PINs,
+            or personal details. It usually arrives via SMS, email, or WhatsApp.
+        </p>
+    </div>
+
+    <div class="learn-card">
+        <span class="card-icon">💳</span>
+        <h3>Payment Message Fraud</h3>
+        <p>
+            Fraudsters send fake payment notifications that look real. They may claim your
+            account is blocked, that you received money and must confirm, or that you need
+            to reverse a transaction urgently. The goal is always to steal your credentials or money.
+        </p>
+    </div>
+
+    <div class="learn-card">
+        <span class="card-icon">📱</span>
+        <h3>M-Pesa & Mobile Money Scams</h3>
+        <p>
+            Common in Kenya. Scammers impersonate Safaricom, fake M-Pesa messages, or
+            pose as agents asking you to "reverse" a sent amount. Safaricom will
+            <strong>never</strong> ask for your PIN via SMS, call, or WhatsApp.
+        </p>
+    </div>
+</div>
+
+<!-- SECTION 2: WARNING SIGNS -->
+<div class="page-header" style="margin-top: 8px;">
+    <h2>⚠ Warning Signs to Watch For</h2>
+    <p>If a message has any of these, treat it as suspicious.</p>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <ul class="warning-list">
+        <li>Message creates urgency — "Act immediately or your account will be closed."</li>
+        <li>Asks for your PIN, OTP, password, or personal ID number.</li>
+        <li>Contains a link to an unfamiliar or misspelled domain (e.g. <code>safar1com.net</code>).</li>
+        <li>Promises unexpected winnings, rewards, or free money.</li>
+        <li>Requests you send or transfer money to "confirm" or "reverse" a transaction.</li>
+        <li>Sender's number is unknown, hidden, or doesn't match the official shortcode.</li>
+        <li>Poor spelling, grammar, or formatting in the message.</li>
+        <li>Uses shortened links (bit.ly, tinyurl) instead of real domain names.</li>
+    </ul>
+</div>
+
+<!-- SECTION 3: REAL VS FAKE EXAMPLES -->
+<div class="page-header" style="margin-top: 8px;">
+    <h2>🔎 Real vs Fake — Examples</h2>
+    <p>Study the difference between genuine and fraudulent messages.</p>
+</div>
+
+<div class="learn-grid">
+    <div class="learn-card" style="border-color: var(--green);">
+        <span class="card-icon">✅</span>
+        <h3 style="color: var(--green);">Genuine M-Pesa Message</h3>
+        <div class="example-msg example-safe">
+            <p><strong>BJ896X Confirmed.</strong> Ksh500.00 sent to JOHN DOE 0712XXXXXX on 23/3/26 at 2:15 PM.
+            New M-PESA balance is Ksh1,200.00. Transaction cost, Ksh11.00.</p>
+        </div>
+        <p style="margin-top:12px; font-size:0.85rem; color: var(--text-muted);">
+            ✔ Has a transaction code &nbsp;✔ No link &nbsp;✔ No PIN request &nbsp;✔ Comes from MPESA shortcode
+        </p>
+    </div>
+
+    <div class="learn-card" style="border-color: var(--red);">
+        <span class="card-icon">🚨</span>
+        <h3 style="color: var(--red);">Fake / Phishing Message</h3>
+        <div class="example-msg example-danger">
+            <p><strong>SAFARICOM ALERT:</strong> Your M-PESA account will be suspended.
+            Verify your account immediately by clicking: http://mpesaa-verify.com/login
+            Enter your PIN to avoid loss of funds.</p>
+        </div>
+        <p style="margin-top:12px; font-size:0.85rem; color: var(--text-muted);">
+            ✘ Fake domain &nbsp;✘ Asks for PIN &nbsp;✘ Urgency pressure &nbsp;✘ Suspicious link
+        </p>
+    </div>
+</div>
+
+<!-- SECTION 4: HOW TO STAY SAFE -->
+<div class="page-header" style="margin-top: 8px;">
+    <h2>🛡 How to Stay Safe</h2>
+</div>
+
+<div class="learn-grid">
+    <div class="learn-card">
+        <span class="card-icon">🔐</span>
+        <h3>Never Share Your PIN or OTP</h3>
+        <p>
+            No legitimate bank, M-Pesa, or payment service will ever ask for your PIN,
+            OTP, or password through SMS, email, WhatsApp, or a phone call. Ever.
+            If someone asks — it is a scam.
+        </p>
+    </div>
+
+    <div class="learn-card">
+        <span class="card-icon">🔗</span>
+        <h3>Verify Links Before Clicking</h3>
+        <p>
+            Hover over any link before clicking. Check the domain carefully.
+            Legitimate Safaricom pages use <strong>safaricom.com</strong>.
+            Any variation like <em>safar1com</em>, <em>safaricom.net</em>,
+            or shortened links should be avoided.
+        </p>
+    </div>
+
+    <div class="learn-card">
+        <span class="card-icon">📞</span>
+        <h3>Call the Official Number</h3>
+        <p>
+            If you receive a suspicious message claiming to be from your bank or
+            M-Pesa, hang up or ignore it. Call the official customer care line
+            directly: <strong>Safaricom: 100</strong>, <strong>Equity: 0763 000 000</strong>,
+            <strong>KCB: 0711 087 000</strong>.
+        </p>
+    </div>
+
+    <div class="learn-card">
+        <span class="card-icon">🛠</span>
+        <h3>Use the PaySecure Verify Tool</h3>
+        <p>
+            Not sure about a message? Don't guess. Copy and paste it into the
+            PaySecure verification tool and get an instant verdict. It checks
+            for known phishing patterns, suspicious domains, and credential requests.
+        </p>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="card" style="margin-top: 8px; text-align: center; padding: 32px;">
+    <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 16px;">
+        Got a suspicious message? Don't take chances.
+    </p>
+    <a href="{{ url_for('verify') }}" class="btn-primary" style="display:inline-block; width:auto; padding: 12px 36px; text-decoration:none;">
+        🔍 Verify a Message Now
+    </a>
+</div>
+
+{% endblock %}
