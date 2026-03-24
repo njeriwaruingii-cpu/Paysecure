@@ -43,17 +43,19 @@ def close_db(exception):
         db.close()
 
 def init_db():
-    """Create tables from schema.sql and seed the admin account."""
+    """Create tables and seed initial data (Admin + Aggressive Phishing Rules)."""
     with app.app_context():
         db = get_db()
+        # 1. Build the tables from schema.sql
         with open("schema.sql", "r") as f:
             db.executescript(f.read())
 
-        # Seed admin only if not already present
-        existing = db.execute(
+        # 2. Seed admin account if missing
+        existing_admin = db.execute(
             "SELECT id FROM users WHERE role = 'admin'"
         ).fetchone()
-        if not existing:
+        
+        if not existing_admin:
             db.execute(
                 """INSERT INTO users (username, email, password_hash, role)
                    VALUES (?, ?, ?, ?)""",
@@ -66,8 +68,41 @@ def init_db():
             )
             db.commit()
             print("[DB] Admin account seeded.")
+
+        # 3. Seed Aggressive Phishing Rules (Matches Zetech ERD)
+        if not db.execute("SELECT id FROM phishing_rules LIMIT 1").fetchone():
+            rules = [
+                # Keywords (Shorter patterns are more reliable for detection)
+                ('verify', 'keyword', 2),
+                ('suspend', 'keyword', 3),
+                ('blocked', 'keyword', 3),
+                ('immediately', 'keyword', 2),
+                ('urgent', 'keyword', 2),
+                ('winner', 'keyword', 3),
+                ('reversal', 'keyword', 3),
+                ('update', 'keyword', 1),
+                ('login', 'keyword', 2),
+                
+                # Suspicious Domains (High impact for instant 'Dangerous' verdict)
+                ('bit.ly', 'suspicious_domain', 4),
+                ('tinyurl', 'suspicious_domain', 4),
+                ('mpesaa', 'suspicious_domain', 5),
+                ('safar1com', 'suspicious_domain', 5),
+                ('equit0', 'suspicious_domain', 5),
+                
+                # Safe Whitelist (Weight 0)
+                ('safaricom.com', 'safe_domain', 0),
+                ('equitybank.co.ke', 'safe_domain', 0),
+                ('kcbgroup.com', 'safe_domain', 0)
+            ]
+            db.executemany(
+                "INSERT INTO phishing_rules (pattern, type, weight) VALUES (?, ?, ?)", 
+                rules
+            )
+            db.commit()
+            print("[DB] Aggressive Phishing Rules seeded.")
         else:
-            print("[DB] Tables ready.")
+            print("[DB] System database and rules are ready.")
 
 
 def log_activity(user_id, action, detail=None):
@@ -131,48 +166,47 @@ SAFE_DOMAINS = [
 ]
 
 def analyze_message(text: str) -> dict:
-    """
-    Database-driven phishing analyzer.
-    Matches patterns from the phishing_rules table.
-    """
     text_lower = text.lower()
     flags = []
     score = 0
     
     db = get_db()
-    # Fetch all rules from the DB (as defined in the school ERD)
     rules = db.execute("SELECT pattern, type, weight FROM phishing_rules").fetchall()
     
-    # 1. Database Rule Checks
+    # 1. Database Pattern Matching
     for rule in rules:
         if rule['pattern'] in text_lower:
             if rule['type'] == 'keyword':
-                flags.append(f"Suspicious phrase detected: '{rule['pattern']}'")
+                flags.append(f"Suspicious keyword: '{rule['pattern']}'")
                 score += rule['weight']
             elif rule['type'] == 'suspicious_domain':
-                flags.append(f"Known suspicious domain: '{rule['pattern']}'")
+                flags.append(f"Blacklisted domain/link detected: '{rule['pattern']}'")
                 score += rule['weight']
-            elif rule['type'] == 'safe_domain' and rule['weight'] == 0:
-                # If a safe domain is found, we could technically lower the score
-                pass
 
-    # 2. Heuristic Checks (RegEx) - These stay in code for precision
-    # Credential requests (PIN/OTP)
-    if re.search(r"\b(pin|password|otp|secret|passcode)\b", text_lower):
-        flags.append("Message requests sensitive credentials (PIN/OTP).")
+    # 2. Hardcoded Critical Security Checks (RegEx)
+    # PIN/Password requests are an automatic 'Dangerous' verdict (Score +4)
+    if re.search(r"pin|password|otp|secret|passcode|p.i.n", text_lower):
+        flags.append("CRITICAL: Message requests sensitive credentials (PIN/OTP).")
         score += 4
 
-    # Money transfer requests
-    if re.search(r"\b(send|transfer|deposit).{0,20}(ksh|kes|money|funds)\b", text_lower):
-        flags.append("Message requests a money transfer/reversal.")
+    # Money/Transaction requests (Automatic Suspicious/Dangerous)
+    if re.search(r"send|transfer|deposit|reverse|reversal|ksh|amount", text_lower):
+        flags.append("Financial transaction request detected.")
         score += 3
 
-    # Urgency signals
-    if re.search(r"\b(immediately|urgent|now|24 hours)\b", text_lower):
-        flags.append("Urgency or pressure language detected.")
-        score += 1
+    # Link Detection (Any link not in whitelist gets a small penalty)
+    links = re.findall(r"https?://[^\s]+|www\.[^\s]+", text_lower)
+    if links:
+        for link in links:
+            is_whitelisted = any(safe['pattern'] in link for safe in rules if safe['type'] == 'safe_domain')
+            if not is_whitelisted:
+                flags.append(f"Unverified external link: {link}")
+                score += 2
 
-    # Final Verdict Logic
+    # Debugging: Print score to terminal so you can see it live!
+    print(f"--- Analysis Log: Score={score} | Verdict Calculation Proceeding ---")
+
+    # 3. Final Verdict Calculation
     if score == 0:
         verdict = "safe"
     elif score <= 3:
@@ -180,11 +214,7 @@ def analyze_message(text: str) -> dict:
     else:
         verdict = "dangerous"
 
-    return {
-        "verdict": verdict,
-        "flags": flags,
-        "score": score
-    }
+    return {"verdict": verdict, "flags": list(set(flags)), "score": score} # set() removes duplicates
 
 
 # ROUTES — AUTH
