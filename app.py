@@ -391,7 +391,8 @@ def admin():
     ).fetchone()["c"]
 
     recent_logs = db.execute(
-        """SELECT u.username, a.action, a.detail, a.ip_address, a.logged_at
+        """SELECT u.username, a.action, a.detail, a.ip_address, 
+           datetime(a.logged_at, '+3 hours') as logged_at
            FROM activity_logs a
            JOIN users u ON u.id = a.user_id
            ORDER BY a.logged_at DESC LIMIT 20"""
